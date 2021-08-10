@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -8,7 +9,25 @@ import (
 	"github.com/genkiroid/xts"
 )
 
+var (
+	version string
+	commit  string
+	date    string
+	builtBy string
+)
+
 func main() {
+	var showVersion bool
+
+	flag.BoolVar(&showVersion, "v", false, "show version")
+	flag.BoolVar(&showVersion, "version", false, "show version")
+	flag.Parse()
+
+	if showVersion {
+		fmt.Printf("xts, version %s\n", version)
+		os.Exit(0)
+	}
+
 	if len(os.Args) < 2 {
 		fmt.Fprintln(os.Stderr, "Usage: xts path-to-mysql-xml-dump-file")
 		os.Exit(1)
