@@ -1,0 +1,30 @@
+before:
+  hooks:
+    - go mod tidy
+builds:
+  -
+    main: ./cmd/xts
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+brews:
+  -
+    name: xts
+    tap:
+      owner: genkiroid
+      name: homebrew-tap
+    url_template: "https://github.com/genkiroid/xts/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    commit_author:
+      name: genkiroid
+      email: gamurai@gmail.com
+    homepage: "https://genkiroid.github.io/"
+    description: "xts is a script that generates an insert statement from a mysql xml dump file."
