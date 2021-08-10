@@ -8,8 +8,8 @@ xts **is not** a tool for restoring database.
 
 xts is designed for tiny use cases such as the following.
 
-- In languages other than Go, MySQL dump files in xml format are used as data sets for unit tests.
-- I want to reuse the above dataset in unit tests for a project whose implementation language is Go.
+- In languages other than Go, MySQL dump files in xml format are used as fixtures for unit tests.
+- I want to reuse the above fixtures in unit tests for a project whose implementation language is Go.
 
 ## Installation
 
