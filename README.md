@@ -4,7 +4,7 @@ xts is a script that generates an insert statement from a mysql xml dump file.
 
 ## Use case
 
-xts **is not** a tool for restoring database.
+xts **is not** a tool for restoring database.If your goal is to restore, you may want to refer to [this](https://rpbouman.blogspot.com/2010/04/restoring-xml-formatted-mysql-dumps.html).
 
 xts is designed for tiny use cases such as the following.
 
