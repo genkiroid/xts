@@ -3,6 +3,9 @@ package xts
 import (
 	"encoding/xml"
 	"fmt"
+	"io"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -77,6 +80,17 @@ type Value struct {
 	Null  string
 }
 
+// Yaml returns string as yaml format for a value.
+func (v Value) Yaml() string {
+	if v.Null == "true" {
+		return fmt.Sprintf("%s: NULL\n", v.Name)
+	}
+	if v.Value == "" {
+		return fmt.Sprintf("%s: \"\"\n", v.Name)
+	}
+	return fmt.Sprintf("%s: %s\n", v.Name, v.Value)
+}
+
 // A Values represents slice of Value.
 type Values []Value
 
@@ -100,6 +114,15 @@ func (v Values) String() string {
 	return strings.Join(s, ", ")
 }
 
+// Yaml returns string as yaml format for values.
+func (v Values) Yaml() string {
+	var s []string
+	for _, value := range v {
+		s = append(s, value.Yaml())
+	}
+	return fmt.Sprintf("- %s", strings.Join(s, "  "))
+}
+
 // A Rows represents slice of Values.
 type Rows []Values
 
@@ -112,6 +135,15 @@ func (r Rows) String() string {
 	return strings.Join(s, ", ")
 }
 
+// Yaml returns string as yaml format for data rows.
+func (r Rows) Yaml() string {
+	var s []string
+	for _, values := range r {
+		s = append(s, values.Yaml())
+	}
+	return strings.Join(s, "\n")
+}
+
 // A Table represents a table to build sql.
 type Table struct {
 	Name    string
@@ -119,12 +151,17 @@ type Table struct {
 	Rows    Rows
 }
 
-// A Sql represents slice of Table to build sql.
-type Sql []Table
+// A Sql has slice of Tables to build sql.
+type Sql struct {
+	Tables []Table
+	out    string
+}
 
 // NewSql returns a new Sql.
-func NewSql(x MySQLXMLDump) Sql {
+func NewSql(x MySQLXMLDump, out string) Sql {
 	var sql Sql
+	sql.out = out
+
 	tableStructures := x.Database.TableStructures
 	for i, table := range tableStructures {
 		var columns []string
@@ -140,16 +177,55 @@ func NewSql(x MySQLXMLDump) Sql {
 			}
 			rows = append(rows, values)
 		}
-		sql = append(sql, Table{table.Name, columns, rows})
+		sql.Tables = append(sql.Tables, Table{table.Name, columns, rows})
 	}
 	return sql
 }
 
-// String returns insert sql statement built from xml dump file.
-func (sql Sql) String() string {
-	var s string
-	for _, table := range sql {
-		s += fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;\n", table.Name, table.Columns, table.Rows)
+// InsertStmt output insert sql statement built from xml dump file to specified out.
+func (sql Sql) InsertStmt() error {
+	for _, table := range sql.Tables {
+		writer, err := sql.writer(table.Name + ".sql")
+		if err != nil {
+			return fmt.Errorf("sql.writer(%s) returned error: %s", table.Name, err)
+		}
+		fmt.Fprintf(writer, "INSERT INTO %s (%s) VALUES %s;\n", table.Name, table.Columns, table.Rows)
 	}
-	return s
+	return nil
+}
+
+// Yaml output yaml format built from xml dump file to specified out.
+func (sql Sql) Yaml() error {
+	for _, table := range sql.Tables {
+		writer, err := sql.writer(table.Name + ".yml")
+		if err != nil {
+			return fmt.Errorf("sql.writer(%s) returned error: %s", table.Name, err)
+		}
+		fmt.Fprintf(writer, "# %s\n%s\n", table.Name, table.Rows.Yaml())
+	}
+	return nil
+}
+
+// writer returns io.Writer by specified out.
+func (sql Sql) writer(f string) (io.Writer, error) {
+	path := sql.out
+	if path == "" {
+		return os.Stdout, nil
+	}
+
+	var err error
+	if path == "--" {
+		path, err = os.Getwd()
+		if err != nil {
+			return nil, fmt.Errorf("os.Getwd() returned error: %s\n", err)
+		}
+	}
+
+	path = filepath.Join(path, f)
+
+	file, err := os.Create(path)
+	if err != nil {
+		return nil, fmt.Errorf("os.Create(%s) returned error: %s\n", path, err)
+	}
+	return file, nil
 }

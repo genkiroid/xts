@@ -1,6 +1,6 @@
 # xts
 
-xts is a script that generates an insert statement from a mysql xml dump file.
+xts is a script that generates an insert statement or yaml from a mysql xml dump file.
 
 ## Use case
 
@@ -31,8 +31,28 @@ $ go get github.com/genkiroid/xts/...
 
 ## Usage
 
+### Output insert statement to stdout
+
 ```console
 $ xts path-to-mysql-dump.xml
+```
+
+### Output sql files for each table to specified directory
+
+```console
+$ xts -d /tmp/ path-to-mysql-dump.xml
+```
+
+### Output yaml to stdout
+
+```console
+$ xts -y path-to-mysql-dump.xml
+```
+
+### Output yaml files for each table to specified directory
+
+```console
+$ xts -y -d /tmp/ path-to-mysql-dump.xml
 ```
 
 Example is [here](https://github.com/genkiroid/xts/blob/main/xts_example_test.go).

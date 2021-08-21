@@ -18,9 +18,15 @@ var (
 
 func main() {
 	var showVersion bool
+	var yaml bool
+	var outdir string
 
 	flag.BoolVar(&showVersion, "v", false, "show version")
 	flag.BoolVar(&showVersion, "version", false, "show version")
+	flag.BoolVar(&yaml, "y", false, "output as yaml")
+	flag.BoolVar(&yaml, "yaml", false, "output as yaml")
+	flag.StringVar(&outdir, "d", "", "output to files at specified directory")
+	flag.StringVar(&outdir, "dir", "", "output to files at specified directory")
 	flag.Parse()
 
 	if showVersion {
@@ -28,14 +34,14 @@ func main() {
 		os.Exit(0)
 	}
 
-	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "Usage: xts path-to-mysql-xml-dump-file")
+	if len(flag.Args()) < 1 {
+		fmt.Fprintln(os.Stderr, "argument is missing")
 		os.Exit(1)
 	}
 
-	path, err := filepath.Abs(os.Args[1])
+	path, err := filepath.Abs(flag.Args()[0])
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "filepath.Abs(%s) returned error: %s\n", os.Args[1], err)
+		fmt.Fprintf(os.Stderr, "filepath.Abs(%s) returned error: %s\n", flag.Args()[0], err)
 		os.Exit(1)
 	}
 
@@ -51,7 +57,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	sql := xts.NewSql(xml)
-	fmt.Println(sql)
+	sql := xts.NewSql(xml, outdir)
+	if yaml {
+		if err := sql.Yaml(); err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			os.Exit(1)
+		}
+		os.Exit(0)
+	}
+	if err := sql.InsertStmt(); err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
+	}
 	os.Exit(0)
 }
