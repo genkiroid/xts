@@ -26,6 +26,7 @@ var sampleXML = `<?xml version="1.0"?>
 		<field Field="user_id" Type="int(11)" Null="NO" Key="" Extra="" Comment="" />
 		<field Field="item_id" Type="int(11)" Null="NO" Key="" Extra="" Comment="" />
 		<field Field="order_date" Type="timestamp" Null="NO" Key="" Extra="" Comment="" />
+		<field Field="memo" Type="text" Null="YES" Key="" Extra="" Comment="" />
 		<key Table="orders" Non_unique="0" Key_name="PRIMARY" Seq_in_index="1" Column_name="id" Collation="A" Cardinality="1" Null="" Index_type="BTREE" Comment="" Index_comment="" />
 		<options Name="orders" Engine="InnoDB" Version="10" Row_format="Compact" Rows="1" Avg_row_length="99999" Data_length="99999" Max_data_length="0" Index_length="999999" Data_free="9999999999" Create_time="2021-08-09 00:00:00" Collation="ujis_japanese_ci" Create_options="" Comment="" />
 	</table_structure>
@@ -35,12 +36,16 @@ var sampleXML = `<?xml version="1.0"?>
 		<field name="user_id">1</field>
 		<field name="item_id">1</field>
 		<field name="order_date">2021-08-09 12:34:45</field>
+		<field name="memo">line1
+line2
+line3</field>
 	</row>
 	<row>
 		<field name="id">2</field>
 		<field name="user_id">1</field>
 		<field name="item_id">2</field>
 		<field name="order_date">2021-08-09 13:34:45</field>
+		<field name="memo"></field>
 	</row>
 	</table_data>
 </database>
@@ -52,7 +57,7 @@ func ExampleSql_InsertStmt() {
 	sql.InsertStmt()
 	// Output:
 	// INSERT INTO users (id, name, nick_name, state, memo) VALUES (1, 'Alice', NULL, 0, '');
-	// INSERT INTO orders (id, user_id, item_id, order_date) VALUES (1, 1, 1, '2021-08-09 12:34:45'), (2, 1, 2, '2021-08-09 13:34:45');
+	// INSERT INTO orders (id, user_id, item_id, order_date, memo) VALUES (1, 1, 1, '2021-08-09 12:34:45', 'line1\nline2\nline3'), (2, 1, 2, '2021-08-09 13:34:45', '');
 }
 
 func ExampleSql_Yaml() {
@@ -72,9 +77,11 @@ func ExampleSql_Yaml() {
 	//   user_id: 1
 	//   item_id: 1
 	//   order_date: 2021-08-09 12:34:45
+	//   memo: "line1\nline2\nline3"
 	//
 	// - id: 2
 	//   user_id: 1
 	//   item_id: 2
 	//   order_date: 2021-08-09 13:34:45
+	//   memo: ""
 }

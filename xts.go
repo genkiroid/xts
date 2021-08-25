@@ -88,6 +88,9 @@ func (v Value) Yaml() string {
 	if v.Value == "" {
 		return fmt.Sprintf("%s: \"\"\n", v.Name)
 	}
+	if strings.Contains(v.Value, "\n") {
+		return fmt.Sprintf("%s: \"%s\"\n", v.Name, strings.ReplaceAll(v.Value, "\n", "\\n"))
+	}
 	return fmt.Sprintf("%s: %s\n", v.Name, v.Value)
 }
 
