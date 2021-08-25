@@ -88,19 +88,7 @@ func (v Value) Yaml() string {
 	if v.Value == "" {
 		return fmt.Sprintf("%s: \"\"\n", v.Name)
 	}
-	return fmt.Sprintf("%s: %s\n", v.Name, v.format())
-}
-
-func (v Value) format() string {
-	t := strings.Split(v.Type, "(")[0]
-	switch t {
-	case "bit", "tinyint", "bool", "boolean", "smallint", "mediumint", "int", "integer", "bigint", "decimal", "dec", "float", "double":
-		return v.Value
-	case "date", "datetime", "timestamp", "time", "year", "char", "varchar", "binary", "varbinary", "tinyblob", "tinytext", "blob", "text", "midiumtext", "longblob", "longtext", "enum", "set":
-		return fmt.Sprintf(`"%s"`, strings.ReplaceAll(v.Value, "\n", "\\n"))
-	default:
-		return ""
-	}
+	return fmt.Sprintf("%s: %s\n", v.Name, v.Value)
 }
 
 // A Values represents slice of Value.
@@ -114,7 +102,14 @@ func (v Values) String() string {
 			s = append(s, "NULL")
 			continue
 		}
-		s = append(s, value.format())
+		t := strings.Split(value.Type, "(")[0]
+		switch t {
+		case "bit", "tinyint", "bool", "boolean", "smallint", "mediumint", "int", "integer", "bigint", "decimal", "dec", "float", "double":
+			s = append(s, value.Value)
+		case "date", "datetime", "timestamp", "time", "year", "char", "varchar", "binary", "varbinary", "tinyblob", "tinytext", "blob", "text", "midiumtext", "longblob", "longtext", "enum", "set":
+			s = append(s, fmt.Sprintf("'%s'", strings.ReplaceAll(value.Value, "\n", "\\n")))
+		default:
+		}
 	}
 	return strings.Join(s, ", ")
 }
