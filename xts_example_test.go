@@ -51,8 +51,8 @@ func ExampleSql_InsertStmt() {
 	sql := NewSql(xml, "")
 	sql.InsertStmt()
 	// Output:
-	// INSERT INTO users (id, name, nick_name, state, memo) VALUES (1, 'Alice', NULL, 0, '');
-	// INSERT INTO orders (id, user_id, item_id, order_date) VALUES (1, 1, 1, '2021-08-09 12:34:45'), (2, 1, 2, '2021-08-09 13:34:45');
+	// INSERT INTO users (id, name, nick_name, state, memo) VALUES (1, "Alice", NULL, 0, "");
+	// INSERT INTO orders (id, user_id, item_id, order_date) VALUES (1, 1, 1, "2021-08-09 12:34:45"), (2, 1, 2, "2021-08-09 13:34:45");
 }
 
 func ExampleSql_Yaml() {
@@ -62,7 +62,7 @@ func ExampleSql_Yaml() {
 	// Output:
 	// # users
 	// - id: 1
-	//   name: Alice
+	//   name: "Alice"
 	//   nick_name: NULL
 	//   state: 0
 	//   memo: ""
@@ -71,10 +71,10 @@ func ExampleSql_Yaml() {
 	// - id: 1
 	//   user_id: 1
 	//   item_id: 1
-	//   order_date: 2021-08-09 12:34:45
+	//   order_date: "2021-08-09 12:34:45"
 	//
 	// - id: 2
 	//   user_id: 1
 	//   item_id: 2
-	//   order_date: 2021-08-09 13:34:45
+	//   order_date: "2021-08-09 13:34:45"
 }
